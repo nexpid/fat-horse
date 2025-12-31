@@ -22,11 +22,11 @@ const fathorse = function (cfg = {}) {
         y: horsePos.y
     };
 
-    const fathorse = document.createElement("div");
-
     const hz = 1000 / config.framerate;
 
-    let lastTick;
+    const fathorse = document.createElement("div");
+
+    let lastTick, shakeUntil = 0;
     function lifecycle() {
         if (!fathorse.parentElement) return;
 
@@ -35,43 +35,36 @@ const fathorse = function (cfg = {}) {
             frame();
         }
 
+        if (config.shake) {
+            if (shakeUntil >= Date.now()) {
+                const x = Math.floor(Math.random() * 4 - 2);
+                const y = Math.floor(Math.random() * 4 - 2);
+                document.body.style.transform = `translate3d(${x}px, ${y}px, 0)`;
+            } else {
+                document.body.style.transform = "";
+            }
+        }
+
         requestAnimationFrame(lifecycle);
     }
 
-    let animationFrame = 0, shakeX = 0, shakeY = 0;
+    function moved() {
+        shakeUntil = Date.now() + 20;
+    }
+
+    let animationFrame = 0;
     function update(frame, active) {
         const sprites = spritesheet[frame];
         let sprite = sprites[0];
         if (active) sprite = sprites[Math.floor(animationFrame) % sprites.length];
 
-        fathorse.style.backgroundPosition = `-${sprite[0] * config.size + shakeX}px -${sprite[1] * config.size + shakeY}px`;
+        fathorse.style.backgroundPosition = `-${sprite[0] * config.size}px -${sprite[1] * config.size}px`;
 
         fathorse.style.left = `${horsePos.x - config.size / 2}px`;
         fathorse.style.top = `${horsePos.y - config.size / 2}px`;
-
-        if (!config.shake) return;
-
-        if (shakeX !== 0 || shakeY !== 0) {
-            document.body.style.transform = `translate3d(${shakeX}px, ${shakeY}px, 0)`;
-        } else {
-            document.body.style.transform = "";
-        }
-    }
-
-    let shakeUntil = 0;
-    function moved() {
-        shakeUntil = Date.now() + 100;
     }
 
     function frame() {
-        if (shakeUntil > Date.now() && config.shake) {
-            shakeX = Math.floor(Math.random() * 6 - 3);
-            shakeY = Math.floor(Math.random() * 6 - 3);
-        } else {
-            shakeX = 0;
-            shakeY = 0;
-        }
-
         lastTick = Date.now();
         const diffX = mousePos.x - horsePos.x;
         const diffY = mousePos.y - horsePos.y;
@@ -84,15 +77,14 @@ const fathorse = function (cfg = {}) {
             diffX / dist > 0.5 ? "right" : "",
         ].join("") || "down";
 
-        const speed = config.speed / config.framerate * 10;
-        if (dist >= Math.max(speed, config.size / 2)) {
+        if (dist >= Math.max(config.speed, config.size / 2)) {
             animationFrame++;
 
             const innerSize = Math.sqrt(window.innerWidth ** 2 + window.innerHeight ** 2);
             const mult = dist / innerSize > 0.5;
             if (mult || animationFrame % 2 === 1) {
-                horsePos.x += (diffX / dist) * speed;
-                horsePos.y += (diffY / dist) * speed;
+                horsePos.x += (diffX / dist) * config.speed;
+                horsePos.y += (diffY / dist) * config.speed;
 
                 moved();
             }

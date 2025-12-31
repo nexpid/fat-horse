@@ -5,7 +5,6 @@
  */
 
 import { definePluginSettings } from "@api/Settings";
-import { EquicordDevs } from "@utils/constants";
 import definePlugin, { OptionType } from "@utils/types";
 import horse from "file://horse.js";
 
@@ -60,7 +59,10 @@ function load() {
 export default definePlugin({
     name: "FatassHorse",
     description: "What a fatass",
-    authors: [EquicordDevs.nexpid],
+    authors: [{
+        name: "Nexpid",
+        id: 853550207039832084n
+    }],
     settings,
 
     start: load,

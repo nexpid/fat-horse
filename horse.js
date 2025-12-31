@@ -85,7 +85,7 @@ const fathorse = function (cfg = {}) {
         ].join("") || "down";
 
         const speed = config.speed / config.framerate * 10;
-        if (dist >= Math.max(speed, config.size * 0.6)) {
+        if (dist >= Math.max(speed, config.size / 2)) {
             animationFrame++;
 
             const innerSize = Math.sqrt(window.innerWidth ** 2 + window.innerHeight ** 2);

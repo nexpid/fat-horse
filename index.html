@@ -49,6 +49,7 @@
         pharetra nibh id dolor ultricies auctor. Integer et cursus urna. Phasellus porttitor magna vitae cursus
         fermentum. Donec risus dolor, pellentesque et aliquet sit amet, dignissim sit amet neque. Donec ornare blandit
         diam nec pulvinar.</p>
+    <pre><span id="debug"></span></pre>
     <div>
         <input type="range" name="speed" id="speed" min="10" max="500" value="30" step="5" />
         <label for="speed">Speed</label>
@@ -69,18 +70,29 @@
         <input type="checkbox" name="fade" id="fade" checked>
         <label for="fade">Fade</label>
     </div>
+    <div>
+        <input type="checkbox" name="freeroam" id="freeroam" checked>
+        <label for="freeroam">Freeroam</label>
+    </div>
+    <div id="draw" aria-hidden="true"
+        style="position: fixed; background-color: red; width: 8px; height: 8px; z-index: 2147483647; pointer-events: none; border-radius: 4px; transform: translate(-50%, -50%)">
+    </div>
+
     <script src="./horse.js"></script>
     <script>
+        let pos = { x: 0, y: 0 };
+
         function update() {
             document.querySelector("label[for=speed]").textContent = `Speed: ${speed.value}`;
             document.querySelector("label[for=fps]").textContent = `Framerate: ${fps.value}`;
             document.querySelector("label[for=size]").textContent = `Size: ${size.value}`;
 
-            fathorse({
+            pos = fathorse({
                 speed: speed.value,
                 fps: fps.value,
                 size: size.value,
                 fade: fade.checked,
+                freeroam: freeroam.checked,
                 shake: shake.checked,
             });
             document.getElementById("fathorse").style.backgroundImage = 'url("./sheet.png")';
@@ -91,7 +103,15 @@
         fps.addEventListener("change", update);
         size.addEventListener("change", update);
         shake.addEventListener("change", update);
+        freeroam.addEventListener("change", update);
         fade.addEventListener("change", update);
+
+        function refresh() {
+            draw.style.left = `${pos.x}px`;
+            draw.style.top = `${pos.y}px`;
+            requestAnimationFrame(refresh);
+        }
+        requestAnimationFrame(refresh);
     </script>
 </body>
 

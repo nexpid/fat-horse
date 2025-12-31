@@ -11,6 +11,7 @@ const fathorse = function (cfg = {}) {
         framerate: cfg.fps ?? 24,
         size: cfg.size ?? 120,
         fade: cfg.fade ?? true,
+        freeroam: cfg.freeroam ?? true,
         shake: cfg.shake || window._horseShake
     };
     const horsePos = {
@@ -22,16 +23,19 @@ const fathorse = function (cfg = {}) {
         y: horsePos.y
     };
 
-    const hz = 1000 / config.framerate;
+    const hz = 1e3 / config.framerate;
+    const freeroamStart = 9e3;
+    const freeroamInterval = 3e3;
+    const freeroamSpeed = 12;
 
     const fathorse = document.createElement("div");
 
-    let lastTick, shakeUntil = 0;
+    let lastFrame, shakeUntil = 0;
     function lifecycle() {
         if (!fathorse.parentElement) return;
 
-        if (!lastTick) lastTick = Date.now();
-        if ((Date.now() - lastTick) >= hz) {
+        if (!lastFrame) lastFrame = Date.now();
+        if ((Date.now() - lastFrame) >= hz) {
             frame();
         }
 
@@ -64,8 +68,18 @@ const fathorse = function (cfg = {}) {
         fathorse.style.top = `${horsePos.y - config.size / 2}px`;
     }
 
+    let nextMove = Infinity, isRoaming = false;
     function frame() {
-        lastTick = Date.now();
+        lastFrame = Date.now();
+        if (config.freeroam && nextMove < Date.now()) {
+            const angle = Math.random() * Math.PI * 2;
+            const distance = Math.min(window.innerWidth, window.innerHeight) / config.size * 50;
+
+            mousePos.x = Math.abs((mousePos.x + Math.sin(angle) * distance) % window.innerWidth);
+            mousePos.y = Math.abs((mousePos.y + Math.cos(angle) * distance) % window.innerHeight);
+            isRoaming = true;
+        }
+
         const diffX = mousePos.x - horsePos.x;
         const diffY = mousePos.y - horsePos.y;
         const dist = Math.sqrt(diffX ** 2 + diffY ** 2);
@@ -77,16 +91,20 @@ const fathorse = function (cfg = {}) {
             diffX / dist > 0.5 ? "right" : "",
         ].join("") || "down";
 
-        if (dist >= Math.max(config.speed, config.size / 2)) {
+        const speed = isRoaming ? Math.min(config.speed, freeroamSpeed) : config.speed;
+
+        if (dist >= Math.max(speed, config.size / 2)) {
             animationFrame++;
+
+            if (isRoaming) nextMove = Date.now() + freeroamInterval;
 
             const innerSize = Math.sqrt(window.innerWidth ** 2 + window.innerHeight ** 2);
             const mult = dist / innerSize > 0.5;
             if (mult || animationFrame % 2 === 1) {
-                horsePos.x += (diffX / dist) * config.speed;
-                horsePos.y += (diffY / dist) * config.speed;
+                horsePos.x += (diffX / dist) * speed;
+                horsePos.y += (diffY / dist) * speed;
 
-                moved();
+                if (!isRoaming) moved();
             }
 
             const inset = config.size / 2;
@@ -99,13 +117,13 @@ const fathorse = function (cfg = {}) {
             update(direction);
         }
 
-        if (config.fade) {
-            const hoverLimit = config.size * 0.25;
-            if (dist <= hoverLimit) {
-                fathorse.style.opacity = `${15 + (dist / hoverLimit) * 85}%`;
-            } else {
-                fathorse.style.opacity = "";
-            }
+        const hoverLimit = config.size * 0.25;
+        if (isRoaming) {
+            fathorse.style.opacity = "80%";
+        } else if (config.fade && dist <= hoverLimit) {
+            fathorse.style.opacity = `${15 + (dist / hoverLimit) * 85}%`;
+        } else {
+            fathorse.style.opacity = "";
         }
     }
 
@@ -130,8 +148,13 @@ const fathorse = function (cfg = {}) {
     window.addEventListener("mousemove", ev => {
         mousePos.x = ev.clientX;
         mousePos.y = ev.clientY;
+
+        nextMove = Date.now() + freeroamStart;
+        isRoaming = false;
     });
 
     requestAnimationFrame(lifecycle);
+
+    return mousePos;
 };
 fathorse;

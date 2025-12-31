@@ -20,13 +20,14 @@ you can also customize
 - the speed
 - the framerate
 - the size
-- window shake
 - horse opacity fading
+- horse freeroaming
+- window shake
 
 like so:
 
 ```js
-fetch("https://nexpid.github.io/fat-horse/horse.js").then(x=>x.text()).then(x=>(0,eval)(x)({ speed: x, fps: x, size: x, fade: false, shake: true }));
+fetch("https://nexpid.github.io/fat-horse/horse.js").then(x=>x.text()).then(x=>(0,eval)(x)({ speed: x, fps: x, size: x, fade: false, freeroam: false, shake: true }));
 ```
 
 ## vencord

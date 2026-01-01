@@ -10,24 +10,24 @@ import horse from "file://horse.js";
 
 const settings = definePluginSettings({
     speed: {
-        description: "Speed of the horse",
+        description: "Speed of the fatass horse",
         type: OptionType.NUMBER,
-        default: 30,
-        isValid: (v: number) => v > 0 || "Speed must be larger than 0",
+        default: 10,
+        isValid: (value: number) => value > 0 || "Speed must be bigger than 0",
         onChange: load
     },
     fps: {
-        description: "Framerate of the horse",
+        description: "Framerate of the fatass horse",
         type: OptionType.NUMBER,
         default: 24,
-        isValid: (v: number) => v > 0 || "Framerate must be larger than 0",
+        isValid: (value: number) => value > 0 || "Framerate must be bigger than 0",
         onChange: load
     },
     size: {
-        description: "Size of the horse",
+        description: "Size of the fatass horse",
         type: OptionType.NUMBER,
         default: 120,
-        isValid: (v: number) => v > 0 || "Size must be larger than 0",
+        isValid: (value: number) => value > 0 || "Size must be bigger than 0",
         onChange: load
     },
     fade: {
@@ -50,8 +50,13 @@ const settings = definePluginSettings({
     }
 });
 
+function unload() {
+    document.getElementById("fathorse")?.remove()
+}
+
 function load() {
     if (!Vencord.Plugins.isPluginEnabled("FatassHorse")) return;
+    unload();
 
     (0, eval)(horse)({
         speed: settings.store.speed,
@@ -73,7 +78,5 @@ export default definePlugin({
     settings,
 
     start: load,
-    stop() {
-        document.getElementById("fathorse")?.remove();
-    }
+    stop: unload,
 });

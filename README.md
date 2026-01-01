@@ -34,6 +34,6 @@ fetch("https://nexpid.github.io/fatass-horse/horse.js").then(x=>x.text()).then(x
 
 you can use fatass horse as a plugin in Vencord! [see how](https://docs.vencord.dev/installing/custom-plugins/)
 
-~~it's also available in [Equicord](https://equicord.org/)~~ (soon!)
+it's also available in [Equicord](https://equicord.org/) in the [CursorBuddy](https://equicord.org/plugins/CursorBuddy) plugin!
 
 ![fat horse](https://media.tenor.com/4NYpwfUI4BYAAAAi/fat-horse.gif)
